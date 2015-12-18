@@ -29,6 +29,7 @@ from docker import Client
 from docker.errors import APIError
 
 from netaddr import IPAddress, IPNetwork, AddrFormatError
+import time
 from policy import PolicyParser
 from subprocess32 import check_output, CalledProcessError, check_call
 
@@ -80,6 +81,7 @@ POLICY_ALLOW = "allow"
 POLICY_NONE = "none"
 ALL_POLICIES = [POLICY_NS_ISOLATION, POLICY_ALLOW, POLICY_NONE]
 
+start_time = time.time()
 
 class NetworkPlugin(object):
 
@@ -989,6 +991,8 @@ def run(mode, namespace, pod_name, docker_id, config):
             logger.debug('Executing Calico pod-status hook')
             NetworkPlugin(config).status(namespace, pod_name, docker_id)
 
+        duration = time.time() - start_time
+        logger.warn("TIMING,%s,%s,%s,%s,%s", mode, namespace, pod_name, docker_id, duration)
 
 if __name__ == '__main__':  # pragma: no cover
     run_protected()
